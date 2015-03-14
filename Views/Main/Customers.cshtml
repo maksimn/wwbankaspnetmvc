@@ -15,10 +15,17 @@
     </tr>
     @foreach (var customer in Model) {
         <tr>
-            <td>@customer.ID</td>
+            <td align="center">@customer.ID</td>
             <td>@customer.Name</td>
             <td>@customer.Address</td>
             <td>@customer.BirthDay.ToString().Substring(0, 10)</td>
         </tr>
     }
 </table>
+
+<div>
+    <p>Add a new customer</p>
+    @using(Html.BeginForm()) {
+
+    }
+</div>
