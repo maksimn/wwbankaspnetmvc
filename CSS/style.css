@@ -1,7 +1,7 @@
-﻿th, td {
+﻿table.customers th, table.customers td {
     border : 1px solid black;
 }
 
-table {
+table.customers {
     border-spacing : 0px;
 }
