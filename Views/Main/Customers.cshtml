@@ -1,5 +1,7 @@
 ﻿@model IEnumerable<WildWestBankApp.Models.Customer>
 
+@using WildWestBankApp.Models
+
 @{
     ViewBag.Title = "Customers";
 }
@@ -27,6 +29,8 @@
 <div>
     <h3>Add a new customer</h3>
     @using(Html.BeginForm()) {
+        var ID = ((List<Customer>)Model)[Model.Count() - 1].ID + 1;       
+        @Html.Hidden("ID", ID)
         <table>
             <tr>
                 <td>@Html.Label("Name"):</td>
