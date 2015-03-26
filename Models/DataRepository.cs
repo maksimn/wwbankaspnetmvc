@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.IO; 
 
 namespace WildWestBankApp.Models {
-    public class DataRepository {
-        private String rootFolder = AppDomain.CurrentDomain.BaseDirectory;
+    public class DataRepository { 
+        private String customersFilePath = AppDomain.CurrentDomain.BaseDirectory + @"\data\Customer.csv";
+        private String accountsFilePath = AppDomain.CurrentDomain.BaseDirectory + @"\data\Account.csv";
         private List<Customer> customers;
         private List<Account> accounts;
         public void LoadCustomersFromDataFile() {            
-            String customersFilePath = rootFolder + @"\data\Customer.csv";
             customers = new List<Customer>();
             using(StreamReader file = new StreamReader(customersFilePath)) {
                 String line;
@@ -29,7 +29,6 @@ namespace WildWestBankApp.Models {
             }
         }
         public void LoadAccountsFromDataFile() {
-            String _accountsFilePath = rootFolder + @"\data\Account.csv";
         }
         public List<Customer> Customers {
             get { 
@@ -41,6 +40,17 @@ namespace WildWestBankApp.Models {
                 return accounts;
             }
         }
-
+        public void AddCustomer(Customer customer) {
+            customers.Add(customer);
+            File.AppendAllText(customersFilePath, Environment.NewLine + ConvertToString(customer));
+        }
+        private String ConvertToString(Customer customer) {
+            String temp = "0" + customer.BirthDay.Day;
+            String strDay = temp.Substring(temp.Length - 2);
+            temp = "0" + customer.BirthDay.Month;
+            String strMonth = temp.Substring(temp.Length - 2);
+            return String.Format("{0};{1};{2};{3}{4}{5}", customer.ID, customer.Name, customer.Address,
+                customer.BirthDay.Year, strMonth, strDay); 
+        }
     }
 }
