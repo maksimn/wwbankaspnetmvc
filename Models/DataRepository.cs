@@ -29,6 +29,21 @@ namespace WildWestBankApp.Models {
             }
         }
         public void LoadAccountsFromDataFile() {
+            accounts = new List<Account>();
+            using (StreamReader file = new StreamReader(accountsFilePath)) {
+                String line;
+                String[] rowField;
+                file.ReadLine();
+                while ((line = file.ReadLine()) != null) {
+                    rowField = line.Split(new Char[] { ';' });
+                    Account account = new Account() {
+                        AccountID = Convert.ToInt32(rowField[0]),
+                        CustomerID = Convert.ToInt32(rowField[1]),
+                        Money = Convert.ToDecimal(rowField[2])
+                    }; 
+                    accounts.Add(account);
+                }
+            }
         }
         public List<Customer> Customers {
             get { 

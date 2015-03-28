@@ -9,6 +9,7 @@ namespace WildWestBankApp.Controllers {
         public MainController() {
             repository = new DataRepository();
             repository.LoadCustomersFromDataFile();
+            repository.LoadAccountsFromDataFile();
         }
         
         public ActionResult Customers() {
@@ -22,7 +23,8 @@ namespace WildWestBankApp.Controllers {
         }
 
         public ActionResult Accounts(Int32 id) {
-            return View();
+            AccountsViewModel viewModel = new AccountsViewModel(id, repository);
+            return View(viewModel);
         }
     }
 }

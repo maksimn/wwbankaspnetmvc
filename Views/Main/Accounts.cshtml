@@ -1,0 +1,13 @@
+﻿@using WildWestBankApp.Models
+
+@model AccountsViewModel
+
+@{
+    ViewBag.Title = "Accounts";
+}
+
+<h2>Customer @Model.CustomerName</h2>
+
+@foreach (var account in Model.AccountsInfo) {
+    <p>@account.Id @account.Money</p>
+}
