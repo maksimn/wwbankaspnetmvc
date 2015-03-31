@@ -67,5 +67,8 @@ namespace WildWestBankApp.Models {
             return String.Format("{0};{1};{2};{3}{4}{5}", customer.ID, customer.Name, customer.Address,
                 customer.BirthDay.Year, strMonth, strDay); 
         }
+        public void AddAccount(Account account) {
+            accounts.Add(account);
+        }
     }
 }

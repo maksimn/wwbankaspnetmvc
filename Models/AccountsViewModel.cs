@@ -1,18 +1,18 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace WildWestBankApp.Models {
     public class AccountsViewModel {
         public String CustomerName { get; set; }
-        public List<AccountInfo> AccountsInfo { get; set; }
+        public Int32 CustomerID { get; set; }
+        public IEnumerable<AccountInfo> AccountsInfo { get; set; }
 
         public AccountsViewModel(Int32 id, DataRepository repository) {
-            AccountsInfo = new List<AccountInfo>();
-            foreach (var account in repository.Accounts) {
-                if(account.CustomerID == id) {
-                    AccountsInfo.Add(new AccountInfo() { Id = account.AccountID, Money = account.Money });
-                }
-            }
+            CustomerID = id;
+            CustomerName = repository.Customers.Where(customer => customer.ID == id).First().Name;
+            AccountsInfo = repository.Accounts.Where(account => account.CustomerID == id)
+                .Select(account => new AccountInfo { Id = account.AccountID, Money = account.Money }); 
         }
 
         public class AccountInfo {

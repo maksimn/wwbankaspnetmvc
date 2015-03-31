@@ -8,6 +8,24 @@
 
 <h2>Customer @Model.CustomerName</h2>
 
-@foreach (var account in Model.AccountsInfo) {
-    <p>@account.Id @account.Money</p>
-}
+<div>
+    <table class="accounts">
+        <tr>
+            <th>ID</th>
+            <th>Currency, $</th> 
+        </tr>
+        @foreach (var account in Model.AccountsInfo) {
+            <tr>
+                <td align="center">@account.Id</td>
+                <td>@account.Money</td>
+            </tr>
+        }
+    </table>
+</div>
+<div>
+    <h3>Add a new account for this customer</h3>
+    @using (Html.BeginForm()) { 
+        @Html.Hidden("ID", Model.CustomerID)
+        <input type="submit" value="Add new account" />
+    }
+</div>
