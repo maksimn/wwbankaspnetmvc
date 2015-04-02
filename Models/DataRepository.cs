@@ -69,6 +69,10 @@ namespace WildWestBankApp.Models {
         }
         public void AddAccount(Account account) {
             accounts.Add(account);
+            File.AppendAllText(accountsFilePath, Environment.NewLine + ConvertToString(account));
+        }
+        private String ConvertToString(Account account) {
+            return String.Format("{0};{1};{2}", account.AccountID, account.CustomerID, account.Money);
         }
     }
 }

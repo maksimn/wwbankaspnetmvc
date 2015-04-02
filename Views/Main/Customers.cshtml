@@ -19,7 +19,7 @@
         @foreach (var customer in Model) {
             <tr>
                 <td align="center">@customer.ID</td>
-                <td>@customer.Name</td>
+                <td>@Html.ActionLink(@customer.Name, "accounts", "main", new { @id = @customer.ID }, null)</td>
                 <td>@customer.Address</td>
                 <td>@customer.BirthDay.ToString().Substring(0, 10)</td>
             </tr>
