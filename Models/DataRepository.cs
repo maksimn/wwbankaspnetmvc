@@ -6,8 +6,27 @@ namespace WildWestBankApp.Models {
     public class DataRepository { 
         private String customersFilePath = AppDomain.CurrentDomain.BaseDirectory + @"\data\Customer.csv";
         private String accountsFilePath = AppDomain.CurrentDomain.BaseDirectory + @"\data\Account.csv";
+        private String transactionTypeFilePath = AppDomain.CurrentDomain.BaseDirectory + @"\data\TransactionType.csv";
         private List<Customer> customers;
         private List<Account> accounts;
+        private List<TransactionType> transactionTypes;
+
+        public void LoadTransactionTypesFromFile() {
+            transactionTypes = new List<TransactionType>();
+            using (StreamReader file = new StreamReader(transactionTypeFilePath)) {
+                String line;
+                String[] rowField;
+                file.ReadLine();
+                while ((line = file.ReadLine()) != null) {
+                    rowField = line.Split(new Char[] { ';' });
+                    TransactionType transactionType = new TransactionType();
+                    transactionType.ID = Convert.ToInt32(rowField[0]);
+                    transactionType.Name = rowField[1];
+                    transactionTypes.Add(transactionType);
+                }
+            }
+        }
+
         public void LoadCustomersFromDataFile() {            
             customers = new List<Customer>();
             using(StreamReader file = new StreamReader(customersFilePath)) {
@@ -28,6 +47,7 @@ namespace WildWestBankApp.Models {
                 }
             }
         }
+
         public void LoadAccountsFromDataFile() {
             accounts = new List<Account>();
             using (StreamReader file = new StreamReader(accountsFilePath)) {
@@ -45,20 +65,30 @@ namespace WildWestBankApp.Models {
                 }
             }
         }
+        
         public List<Customer> Customers {
             get { 
                 return customers; 
             }
         }
+        
         public List<Account> Accounts {
             get {
                 return accounts;
             }
         }
+
+        public List<TransactionType> TransactionTypes {
+            get {
+                return transactionTypes;
+            }
+        }
+        
         public void AddCustomer(Customer customer) {
             customers.Add(customer);
             File.AppendAllText(customersFilePath, Environment.NewLine + ConvertToString(customer));
         }
+        
         private String ConvertToString(Customer customer) {
             String temp = "0" + customer.BirthDay.Day;
             String strDay = temp.Substring(temp.Length - 2);
@@ -67,10 +97,12 @@ namespace WildWestBankApp.Models {
             return String.Format("{0};{1};{2};{3}{4}{5}", customer.ID, customer.Name, customer.Address,
                 customer.BirthDay.Year, strMonth, strDay); 
         }
+        
         public void AddAccount(Account account) {
             accounts.Add(account);
             File.AppendAllText(accountsFilePath, Environment.NewLine + ConvertToString(account));
         }
+        
         private String ConvertToString(Account account) {
             return String.Format("{0};{1};{2}", account.AccountID, account.CustomerID, account.Money);
         }

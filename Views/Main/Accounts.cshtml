@@ -9,18 +9,22 @@
 <h2>Customer @Model.CustomerName</h2>
 
 <div>
-    <table class="accounts">
-        <tr>
-            <th>ID</th>
-            <th>Currency, $</th> 
-        </tr>
-        @foreach (var account in Model.AccountsInfo) {
+    @if(@Model.AccountsInfo.Count() == 0) {
+        <p>This customer does not have account.</p>
+    } else {
+        <table class="accounts">
             <tr>
-                <td align="center">@account.Id</td>
-                <td>@account.Money</td>
+                <th>ID</th>
+                <th>Currency, $</th> 
             </tr>
-        }
-    </table>
+            @foreach (var account in Model.AccountsInfo) {
+                <tr>
+                    <td align="center">@account.Id</td>
+                    <td>@account.Money</td>
+                </tr>
+            }
+        </table>
+    }    
 </div>
 <div>
     <h3>Add a new account for this customer</h3>

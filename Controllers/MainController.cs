@@ -6,11 +6,14 @@ using WildWestBankApp.Models;
 namespace WildWestBankApp.Controllers {
     public class MainController : Controller {
         private DataRepository repository;
+        private OperationViewModel operationViewModel;
         
         public MainController() {
             repository = new DataRepository();
             repository.LoadCustomersFromDataFile();
             repository.LoadAccountsFromDataFile();
+            repository.LoadTransactionTypesFromFile();
+            operationViewModel = new OperationViewModel(repository);
         }
         
         public ActionResult Customers() {
@@ -34,6 +37,10 @@ namespace WildWestBankApp.Controllers {
             Int32 newAccountId = repository.Accounts.Max(a => a.AccountID) + 1;
             repository.AddAccount(new Account() { AccountID = newAccountId, CustomerID = customerId, Money = 0.0m });
             return RedirectToAction("Accounts", new { id = customerId });
+        }
+
+        public ActionResult Operation() {
+            return View(operationViewModel);
         }
     }
 }
