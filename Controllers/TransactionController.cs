@@ -1,11 +1,13 @@
 ﻿using System; 
 using System.Web.Mvc;
+using System.Linq;
 using WildWestBankApp.Models;
 
 namespace WildWestBankApp.Controllers {
     public class TransactionController : Controller {
         public TransactionController() {
             repository = new TransactionRepository();
+            repository.Load();
         }
 
         public ActionResult Index() {
@@ -13,12 +15,19 @@ namespace WildWestBankApp.Controllers {
         }
 
         public ActionResult Transfer() {
-            return View();
+            var transaction = new Transaction();
+            if (repository.List.Count() == 0) {
+                transaction.ID = 1;
+            } else {
+                transaction.ID = repository.List.Max(tr => tr.ID) + 1;
+            }            
+            return View(transaction);
         }
 
         [HttpPost]
         public ActionResult Transfer(Transaction transaction) {
-            return View();
+            transaction.DateTime = DateTime.Now;
+            return RedirectToAction("Index");
         }
 
         public ActionResult Add() {

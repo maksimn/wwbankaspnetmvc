@@ -4,13 +4,34 @@ using System.Collections.Generic;
 
 namespace WildWestBankApp.Models {
     public class TransactionRepository {
+        private String transactionFilePath = AppDomain.CurrentDomain.BaseDirectory + @"\data\Transaction.csv";
         private String transactionTypeFilePath = AppDomain.CurrentDomain.BaseDirectory + @"\data\TransactionType.csv";
         private List<TransactionType> transactionTypes;
         private List<Transaction> transactionList;
 
+        public void AddTransaction(Transaction transaction) {
+            transactionList.Add(transaction);
+            SaveTransactionInFile(transaction);
+        }
+
+        private void SaveTransactionInFile(Transaction transaction) {
+            File.AppendAllText(transactionFilePath, Environment.NewLine + ConvertToString(transaction));
+        }
+
+        private String ConvertToString(Transaction transaction) {
+            return String.Format("{0};{1};{2};{3};{4};{5}", transaction.ID, transaction.FromAccountID, 
+                transaction.ToAccountID, transaction.TypeID, transaction.Amount, transaction.DateTime);
+        }
+
         public void Load() {
             LoadTransactionTypesFromFile();
             LoadTransactionListFromFile();
+        }
+
+        public IEnumerable<Transaction> List {
+            get {
+                return transactionList;
+            }
         }
 
         private void LoadTransactionTypesFromFile() {
@@ -31,7 +52,7 @@ namespace WildWestBankApp.Models {
 
         private void LoadTransactionListFromFile() {
             transactionList = new List<Transaction>();
-            using (StreamReader file = new StreamReader(transactionTypeFilePath)) {
+            using (StreamReader file = new StreamReader(transactionFilePath)) {
                 String line;
                 String[] rowField;
                 file.ReadLine();

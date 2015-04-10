@@ -1,0 +1,33 @@
+﻿@using WildWestBankApp.Models
+
+@model Transaction
+
+@{
+    ViewBag.Title = "Transfer";
+}
+
+<h2>Transfer money</h2>
+
+<div>
+    @using(Html.BeginForm()) {
+        @Html.Hidden("ID", @Model.ID)
+        @Html.Hidden("TypeID", 1)
+        <table>
+            <tr>
+                <td>@Html.Label("From Account (ID)"):</td>
+                <td>@Html.TextBox("FromAccountID")</td>
+            </tr>
+            <tr>
+                <td>@Html.Label("To Account (ID)"):</td>
+                <td>@Html.TextBox("ToAccountID")</td>
+            </tr>
+            <tr>
+                <td>@Html.Label("Amount"):</td>
+                <td>@Html.TextBox("Amount")</td>
+            </tr>
+        </table>
+        <input type="submit" value="Commit the transaction" />
+    }
+</div> 
+
+<p>@Html.ActionLink("Return to transaction selection page", "index", "transaction")</p>

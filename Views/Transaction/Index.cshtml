@@ -1,0 +1,11 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Select type of a transaction</h2>
+
+<ul>
+    <li>@Html.ActionLink("Transfer money between accounts", "transfer", "transaction")</li>
+    <li>@Html.ActionLink("Add money to an account", "add", "transaction")</li>
+    <li>@Html.ActionLink("Withdraw money from an account", "withdraw", "transaction")</li>
+</ul>
