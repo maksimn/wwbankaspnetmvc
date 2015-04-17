@@ -1,4 +1,8 @@
-﻿@{
+﻿@using WildWestBankApp.Models
+
+@model IEnumerable<Transaction>
+
+@{
     ViewBag.Title = "Index";
 }
 
@@ -9,3 +13,31 @@
     <li>@Html.ActionLink("Add money to an account", "add", "transaction")</li>
     <li>@Html.ActionLink("Withdraw money from an account", "withdraw", "transaction")</li>
 </ul>
+
+<div>
+    <h2>Transactions of The Wild West Bank</h2>
+    @if (@Model.Count() == 0) {
+        <p>No transactions yet</p>
+    } else {
+        <table class="customers">
+            <tr>
+                <th>Transaction ID</th>
+                <th>From Account</th>
+                <th>To Account</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Date and time</th>
+            </tr>
+            @foreach (var tr in Model) {
+                <tr>
+                    <td align="center">@tr.ID</td>
+                    <td align="center">@tr.FromAccountID</td>
+                    <td align="center">@tr.ToAccountID</td>
+                    <td align="center">@tr.TypeID</td>
+                    <td>@tr.Amount</td>
+                    <td>@tr.DateTime</td>
+                </tr>
+            }
+        </table>        
+    }
+</div>

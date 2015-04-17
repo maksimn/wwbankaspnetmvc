@@ -114,7 +114,6 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\Account.cs" />
-    <Compile Include="Models\Repositories\TransactionRepository.cs" />
     <Compile Include="Models\Transaction.cs" />
     <Compile Include="Models\ViewModels\AccountsViewModel.cs" />
     <Compile Include="Models\Customer.cs" />

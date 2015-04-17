@@ -6,28 +6,25 @@ using WildWestBankApp.Models;
 namespace WildWestBankApp.Controllers {
     public class TransactionController : Controller {
         public TransactionController() {
-            repository = new TransactionRepository();
+            repository = new DataRepository();
             repository.Load();
         }
 
         public ActionResult Index() {
-            return View();
+            return View(repository.TransactionList);
         }
 
         public ActionResult Transfer() {
             var transaction = new Transaction();
-            if (repository.List.Count() == 0) {
-                transaction.ID = 1;
-            } else {
-                transaction.ID = repository.List.Max(tr => tr.ID) + 1;
-            }            
+            transaction.ID = GetNewTransactionId();
             return View(transaction);
         }
 
         [HttpPost]
         public ActionResult Transfer(Transaction transaction) {
             transaction.DateTime = DateTime.Now;
-            return RedirectToAction("Index");
+            repository.AddTransaction(transaction);
+            return View("index", repository.TransactionList);
         }
 
         public ActionResult Add() {
@@ -48,6 +45,14 @@ namespace WildWestBankApp.Controllers {
             return View();
         }
 
-        private TransactionRepository repository;
+        private Int32 GetNewTransactionId() {
+            if (repository.TransactionList.Count() == 0) {
+                return 1;
+            } else {
+                return repository.TransactionList.Max(tr => tr.ID) + 1;
+            }   
+        }
+
+        private DataRepository repository;
     }
 }
