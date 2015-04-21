@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.IO; 
 
@@ -110,11 +111,11 @@ namespace WildWestBankApp.Models {
 
         public void AddAccount(Account account) {
             accounts.Add(account);
-            File.AppendAllText(accountsFilePath, Environment.NewLine + ConvertToString(account));
+            SaveAccountInFile(account);
         }
         public void AddCustomer(Customer customer) {
             customers.Add(customer);
-            File.AppendAllText(customersFilePath, Environment.NewLine + ConvertToString(customer));
+            SaveCustomerInFile(customer);
         }
         public void AddTransaction(Transaction transaction) {
             transactionList.Add(transaction);
@@ -139,6 +140,41 @@ namespace WildWestBankApp.Models {
 
         private void SaveTransactionInFile(Transaction transaction) {
             File.AppendAllText(transactionFilePath, Environment.NewLine + ConvertToString(transaction));
+        }
+        private void SaveAccountInFile(Account account) {
+            File.AppendAllText(accountsFilePath, Environment.NewLine + ConvertToString(account));
+        }
+        private void SaveCustomerInFile(Customer customer) {
+            File.AppendAllText(customersFilePath, Environment.NewLine + ConvertToString(customer));
+        }
+
+        public Int32 GetNewTransactionId() {
+            if (this.TransactionList.Count() == 0) {
+                return 1;
+            } else {
+                return this.TransactionList.Max(tr => tr.ID) + 1;
+            }
+        }
+
+        public void TransferMoneyBetweenAccounts(Transaction transaction) {
+            Account fromAccount =
+                Accounts.Where(acc => acc.AccountID == transaction.FromAccountID).First();
+            Account toAccount =
+                Accounts.Where(acc => acc.AccountID == transaction.ToAccountID).First();
+
+            if (fromAccount.Money >= transaction.Amount) {
+                fromAccount.Money -= transaction.Amount;
+            } else {
+                throw new Exception();
+            }
+            toAccount.Money += transaction.Amount;
+
+            this.UpdateAccount(fromAccount);
+            this.UpdateAccount(toAccount);
+        }
+
+        private void UpdateAccount(Account account) {
+
         }
     }
 }

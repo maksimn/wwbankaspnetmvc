@@ -1,6 +1,5 @@
 ﻿using System; 
 using System.Web.Mvc;
-using System.Linq;
 using WildWestBankApp.Models;
 
 namespace WildWestBankApp.Controllers {
@@ -16,14 +15,14 @@ namespace WildWestBankApp.Controllers {
 
         public ActionResult Transfer() {
             var transaction = new Transaction();
-            transaction.ID = GetNewTransactionId();
+            transaction.ID = repository.GetNewTransactionId();
             return View(transaction);
         }
 
         [HttpPost]
         public ActionResult Transfer(Transaction transaction) {
             transaction.DateTime = DateTime.Now;
-            repository.AddTransaction(transaction);
+            repository.TransferMoneyBetweenAccounts(transaction);
             return View("index", repository.TransactionList);
         }
 
@@ -43,14 +42,6 @@ namespace WildWestBankApp.Controllers {
         [HttpPost]
         public ActionResult Withdraw(Transaction transaction) {
             return View();
-        }
-
-        private Int32 GetNewTransactionId() {
-            if (repository.TransactionList.Count() == 0) {
-                return 1;
-            } else {
-                return repository.TransactionList.Max(tr => tr.ID) + 1;
-            }   
         }
 
         private DataRepository repository;
