@@ -33,6 +33,7 @@ namespace WildWestBankApp.Models {
                     customer.BirthDay = new DateTime(year, month, day);
                     customers.Add(customer);
                 }
+                file.Dispose();
             }
         }
         public void LoadAccountsFromDataFile() {
@@ -50,6 +51,7 @@ namespace WildWestBankApp.Models {
                     }; 
                     accounts.Add(account);
                 }
+                file.Dispose();
             }
         }
         private void LoadTransactionTypesFromFile() {
@@ -65,6 +67,7 @@ namespace WildWestBankApp.Models {
                     transactionType.Name = rowField[1];
                     transactionTypes.Add(transactionType);
                 }
+                file.Dispose();
             }
         }
         private void LoadTransactionListFromFile() {
@@ -84,6 +87,7 @@ namespace WildWestBankApp.Models {
                     transaction.DateTime = Convert.ToDateTime(rowField[5]);
                     transactionList.Add(transaction);
                 }
+                file.Dispose();
             }
         }
         public void Load() {
@@ -169,12 +173,23 @@ namespace WildWestBankApp.Models {
             }
             toAccount.Money += transaction.Amount;
 
-            this.UpdateAccount(fromAccount);
-            this.UpdateAccount(toAccount);
+            UpdateAccount(fromAccount);
+            UpdateAccount(toAccount);
+            AddTransaction(transaction);
         }
 
         private void UpdateAccount(Account account) {
-
+            String fileText = File.ReadAllText(accountsFilePath);
+            String[] stringArray = fileText.Split(new String[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            for (Int32 i = 1; i < stringArray.Length; i++) {
+                String strID = stringArray[i].Substring(0, stringArray[i].IndexOf(';'));
+                Int32 id = Convert.ToInt32(strID);
+                if (id == account.AccountID) {
+                    stringArray[i] = ConvertToString(account);
+                    break;
+                }
+            }
+            File.WriteAllText(accountsFilePath, String.Join(Environment.NewLine, stringArray));
         }
     }
 }
