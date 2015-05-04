@@ -160,18 +160,26 @@ namespace WildWestBankApp.Models {
             }
         }
 
+        private Account FindAccountById(Int32 id) {
+            var accounts = Accounts.Where(acc => acc.AccountID == id);
+            if (accounts.Count() == 0) {
+                throw new AccountNotExistsException(id);
+            }
+            return accounts.First();
+        }
+
         public void TransferMoneyBetweenAccounts(Transaction transaction) {
-            Account fromAccount =
-                Accounts.Where(acc => acc.AccountID == transaction.FromAccountID).First();
-            Account toAccount =
-                Accounts.Where(acc => acc.AccountID == transaction.ToAccountID).First();
+            Account fromAccount = FindAccountById(transaction.FromAccountID);
+            Account toAccount = FindAccountById(transaction.ToAccountID);
 
             if (fromAccount.Money >= transaction.Amount) {
                 fromAccount.Money -= transaction.Amount;
             } else {
-                throw new Exception();
+                throw new NotEnoughMoneyException();
             }
-            toAccount.Money += transaction.Amount;
+            checked {
+                toAccount.Money += transaction.Amount; // Can generate OverflowException
+            }
 
             UpdateAccount(fromAccount);
             UpdateAccount(toAccount);

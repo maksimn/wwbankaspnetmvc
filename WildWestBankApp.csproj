@@ -29,6 +29,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -114,6 +115,9 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\Account.cs" />
+    <Compile Include="Models\CustomExceptions\AccountNotExistsException.cs" />
+    <Compile Include="Models\CustomExceptions\NotEnoughMoneyException.cs" />
+    <Compile Include="Models\CustomExceptions\WrongTransactionTypeException.cs" />
     <Compile Include="Models\Transaction.cs" />
     <Compile Include="Models\ViewModels\AccountsViewModel.cs" />
     <Compile Include="Models\Customer.cs" />
