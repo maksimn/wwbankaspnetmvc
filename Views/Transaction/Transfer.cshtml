@@ -16,14 +16,17 @@
             <tr>
                 <td>@Html.Label("From Account (ID)"):</td>
                 <td>@Html.TextBox("FromAccountID", "")</td>
+                <td>@Html.ValidationMessage("FromAccountID")</td>
             </tr>
             <tr>
                 <td>@Html.Label("To Account (ID)"):</td>
                 <td>@Html.TextBox("ToAccountID", "")</td>
+                <td>@Html.ValidationMessage("ToAccountID")</td>
             </tr>
             <tr>
                 <td>@Html.Label("Amount"):</td>
                 <td>@Html.TextBox("Amount", "")</td>
+                <td>@Html.ValidationMessage("Amount")</td>
             </tr>
         </table>
         <input type="submit" value="Commit the transaction" />

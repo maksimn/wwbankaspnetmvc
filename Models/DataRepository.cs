@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.IO; 
+using System.IO;
 
 namespace WildWestBankApp.Models {
     public class DataRepository { 
@@ -152,41 +152,15 @@ namespace WildWestBankApp.Models {
             File.AppendAllText(customersFilePath, Environment.NewLine + ConvertToString(customer));
         }
 
-        public Int32 GetNewTransactionId() {
-            if (this.TransactionList.Count() == 0) {
-                return 1;
-            } else {
-                return this.TransactionList.Max(tr => tr.ID) + 1;
-            }
-        }
-
-        private Account FindAccountById(Int32 id) {
+        public Account FindAccountById(Int32 id) {
             var accounts = Accounts.Where(acc => acc.AccountID == id);
             if (accounts.Count() == 0) {
-                throw new AccountNotExistsException(id);
+                return null;
             }
             return accounts.First();
         }
 
-        public void TransferMoneyBetweenAccounts(Transaction transaction) {
-            Account fromAccount = FindAccountById(transaction.FromAccountID);
-            Account toAccount = FindAccountById(transaction.ToAccountID);
-
-            if (fromAccount.Money >= transaction.Amount) {
-                fromAccount.Money -= transaction.Amount;
-            } else {
-                throw new NotEnoughMoneyException();
-            }
-            checked {
-                toAccount.Money += transaction.Amount; // Can generate OverflowException
-            }
-
-            UpdateAccount(fromAccount);
-            UpdateAccount(toAccount);
-            AddTransaction(transaction);
-        }
-
-        private void UpdateAccount(Account account) {
+        public void UpdateAccount(Account account) {
             String fileText = File.ReadAllText(accountsFilePath);
             String[] stringArray = fileText.Split(new String[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
             for (Int32 i = 1; i < stringArray.Length; i++) {

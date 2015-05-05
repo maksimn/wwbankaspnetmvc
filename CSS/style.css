@@ -5,3 +5,7 @@
 table.customers, table.accounts {
     border-spacing : 0px;
 }
+
+span.field-validation-error {
+    color: red;
+}
