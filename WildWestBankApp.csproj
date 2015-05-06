@@ -121,7 +121,6 @@
     <Compile Include="Models\ViewModels\AccountsViewModel.cs" />
     <Compile Include="Models\Customer.cs" />
     <Compile Include="Models\DataRepository.cs" />
-    <Compile Include="Models\TransactionType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

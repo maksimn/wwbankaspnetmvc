@@ -11,7 +11,9 @@
 <div>
     @using(Html.BeginForm()) {
         @Html.Hidden("ID", @Model.ID)
-        @Html.Hidden("TypeID", 1)
+        <select id="Type" name="Type" style="visibility:hidden;">
+            <option value="Transfer"></option>
+        </select>
         <table>
             <tr>
                 <td>@Html.Label("From Account (ID)"):</td>

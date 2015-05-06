@@ -8,11 +8,9 @@ namespace WildWestBankApp.Models {
         private String customersFilePath = AppDomain.CurrentDomain.BaseDirectory + @"\data\Customer.csv";
         private String accountsFilePath = AppDomain.CurrentDomain.BaseDirectory + @"\data\Account.csv";
         private String transactionFilePath = AppDomain.CurrentDomain.BaseDirectory + @"\data\Transaction.csv";
-        private String transactionTypeFilePath = AppDomain.CurrentDomain.BaseDirectory + @"\data\TransactionType.csv";
 
         private List<Customer> customers;
         private List<Account> accounts;
-        private List<TransactionType> transactionTypes;
         private List<Transaction> transactionList;
 
         public void LoadCustomersFromDataFile() {            
@@ -54,22 +52,6 @@ namespace WildWestBankApp.Models {
                 file.Dispose();
             }
         }
-        private void LoadTransactionTypesFromFile() {
-            transactionTypes = new List<TransactionType>();
-            using (StreamReader file = new StreamReader(transactionTypeFilePath)) {
-                String line;
-                String[] rowField;
-                file.ReadLine();
-                while ((line = file.ReadLine()) != null) {
-                    rowField = line.Split(new Char[] { ';' });
-                    TransactionType transactionType = new TransactionType();
-                    transactionType.ID = Convert.ToInt32(rowField[0]);
-                    transactionType.Name = rowField[1];
-                    transactionTypes.Add(transactionType);
-                }
-                file.Dispose();
-            }
-        }
         private void LoadTransactionListFromFile() {
             transactionList = new List<Transaction>();
             using (StreamReader file = new StreamReader(transactionFilePath)) {
@@ -82,7 +64,7 @@ namespace WildWestBankApp.Models {
                     transaction.ID = Convert.ToInt32(rowField[0]);
                     transaction.FromAccountID = Convert.ToInt32(rowField[1]);
                     transaction.ToAccountID = Convert.ToInt32(rowField[2]);
-                    transaction.TypeID = Convert.ToInt32(rowField[3]);
+                    transaction.Type = (TransactionType) Convert.ToInt32(rowField[3]);
                     transaction.Amount = Convert.ToDecimal(rowField[4]);
                     transaction.DateTime = Convert.ToDateTime(rowField[5]);
                     transactionList.Add(transaction);
@@ -93,7 +75,6 @@ namespace WildWestBankApp.Models {
         public void Load() {
             LoadAccountsFromDataFile();
             LoadCustomersFromDataFile();
-            LoadTransactionTypesFromFile();
             LoadTransactionListFromFile();
         }
 
@@ -139,7 +120,7 @@ namespace WildWestBankApp.Models {
         }
         private String ConvertToString(Transaction transaction) {
             return String.Format("{0};{1};{2};{3};{4};{5}", transaction.ID, transaction.FromAccountID,
-                transaction.ToAccountID, transaction.TypeID, transaction.Amount, transaction.DateTime);
+                transaction.ToAccountID, (Int32)transaction.Type, transaction.Amount, transaction.DateTime);
         }
 
         private void SaveTransactionInFile(Transaction transaction) {
