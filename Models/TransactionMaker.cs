@@ -63,6 +63,7 @@ namespace WildWestBankApp.Models {
             repository.UpdateAccount(fromAccount);
             repository.UpdateAccount(toAccount);
             repository.AddTransaction(transaction);
+            modelState.Clear();
             return true;
         }
 

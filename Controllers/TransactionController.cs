@@ -23,11 +23,7 @@ namespace WildWestBankApp.Controllers {
                 return View(transaction);
             }
             MakeTransfer(transaction);
-            //return View(new Transaction { ID = transactionMaker.GetNewId() });
-            //return RedirectToAction("Transfer");
-            return View(new Transaction { 
-                ID = transactionMaker.GetNewId()
-            });
+            return View(new Transaction { ID = transactionMaker.GetNewId() });
         }
 
         public ActionResult Add() {
