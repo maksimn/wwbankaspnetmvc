@@ -37,7 +37,7 @@ namespace WildWestBankApp.Models {
             msd.Merge(newModelState);
         }
 
-        public void TransferMoneyBetweenAccounts(Transaction transaction, ModelStateDictionary modelState) {
+        public Boolean TransferMoneyBetweenAccounts(Transaction transaction, ModelStateDictionary modelState) {
             ShowErrorMessageIfFromAccountAndToAccountAreEqual(transaction, modelState);
 
             Account fromAccount = repository.FindAccountById(transaction.FromAccountID);
@@ -46,20 +46,24 @@ namespace WildWestBankApp.Models {
             ValidateIfAccountExists(fromAccount, modelState);
             ValidateIfAccountExists(toAccount, modelState);
 
-            if(ValidateIfAccountHasEnougnMoneyForTransaction(fromAccount, transaction)) {
-                checked {
-                    fromAccount.Money -= transaction.Amount;
-                    toAccount.Money += transaction.Amount; // Can generate OverflowException
-                }
-                repository.UpdateAccount(fromAccount);
-                repository.UpdateAccount(toAccount);
-                repository.AddTransaction(transaction);
-            } else {
+            if(!modelState.IsValid) {
+                return false;
+            }
+            if (!ValidateIfAccountHasEnougnMoneyForTransaction(fromAccount, transaction)) {
                 var newMsd = new ModelStateDictionary();
-                newMsd.AddModelError("Amount", 
+                newMsd.AddModelError("Amount",
                     String.Format("Money on Account with id = {0} is not enough for the transaction", fromAccount.AccountID));
                 modelState.Merge(newMsd);
+                return false;
             }
+            checked {
+                fromAccount.Money -= transaction.Amount;
+                toAccount.Money += transaction.Amount; // Can generate OverflowException
+            }
+            repository.UpdateAccount(fromAccount);
+            repository.UpdateAccount(toAccount);
+            repository.AddTransaction(transaction);
+            return true;
         }
 
         private Boolean ValidateIfAccountHasEnougnMoneyForTransaction(Account a, Transaction t) {

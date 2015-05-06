@@ -9,3 +9,8 @@ table.customers, table.accounts {
 span.field-validation-error {
     color: red;
 }
+
+.transactionResult {
+    color: gray;
+    font-weight: bold;
+}

@@ -115,6 +115,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\Account.cs" />
+    <Compile Include="Models\PositiveNumberAttribute.cs" />
     <Compile Include="Models\Transaction.cs" />
     <Compile Include="Models\TransactionMaker.cs" />
     <Compile Include="Models\ViewModels\AccountsViewModel.cs" />

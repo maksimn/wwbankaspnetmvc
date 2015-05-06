@@ -22,8 +22,7 @@ namespace WildWestBankApp.Controllers {
             if(!ModelState.IsValid) {
                 return View(transaction);
             }
-            transaction.DateTime = DateTime.Now;
-            transactionMaker.TransferMoneyBetweenAccounts(transaction, ModelState);
+            MakeTransfer(transaction);
             return View(new Transaction { ID = transactionMaker.GetNewId() });
         }
 
@@ -43,6 +42,21 @@ namespace WildWestBankApp.Controllers {
         [HttpPost]
         public ActionResult Withdraw(Transaction transaction) {
             return View();
-        }        
+        }
+
+        private void MakeTransfer(Transaction transaction) {
+            transaction.DateTime = DateTime.Now;
+            Boolean result = false;
+            try {
+                result = transactionMaker.TransferMoneyBetweenAccounts(transaction, ModelState);
+            } catch (OverflowException) {
+                ViewBag.TransactionResult = "Overflow error while the transaction.";
+            } catch (Exception) {
+                throw;
+            }
+            if (result) {
+                ViewBag.TransactionResult = "Last transaction was successfully committed.";
+            }
+        }
     }
 }
