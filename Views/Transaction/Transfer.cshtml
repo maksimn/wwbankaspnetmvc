@@ -14,23 +14,17 @@
         <select id="Type" name="Type" style="visibility:hidden;">
             <option value="Transfer"></option>
         </select>
-        <table>
-            <tr>
-                <td>@Html.Label("From Account (ID)"):</td>
-                <td>@Html.TextBox("FromAccountID", "")</td>
-                <td>@Html.ValidationMessage("FromAccountID")</td>
-            </tr>
-            <tr>
-                <td>@Html.Label("To Account (ID)"):</td>
-                <td>@Html.TextBox("ToAccountID", "")</td>
-                <td>@Html.ValidationMessage("ToAccountID")</td>
-            </tr>
-            <tr>
-                <td>@Html.Label("Amount"):</td>
-                <td>@Html.TextBox("Amount", "")</td>
-                <td>@Html.ValidationMessage("Amount")</td>
-            </tr>
-        </table>
+        <fieldset>
+            @Html.Label("FromAccountID", "From Account (ID):")
+            @Html.TextBox("FromAccountID", "")
+            @Html.ValidationMessage("FromAccountID")<br />
+            @Html.Label("ToAccountID", "To Account (ID):")
+            @Html.TextBox("ToAccountID", "")
+            @Html.ValidationMessage("ToAccountID")<br />
+            @Html.Label("Amount:")
+            @Html.TextBox("Amount", "")
+            @Html.ValidationMessage("Amount")<br />
+        </fieldset>
         <input type="submit" value="Commit the transaction" />
     }
     <div class="transactionResult">

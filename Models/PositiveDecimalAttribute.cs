@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace WildWestBankApp.Models {
     [AttributeUsage(AttributeTargets.Property)]
-    public class PositiveNumberAttribute : ValidationAttribute {
+    public class PositiveDecimalAttribute : ValidationAttribute {
         public override Boolean IsValid(Object value) {
             if (value == null) {
                 return false;

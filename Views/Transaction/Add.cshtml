@@ -1,7 +1,35 @@
-﻿@{
-    ViewBag.Title = "Add";
+﻿@using WildWestBankApp.Models
+@model Transaction
+@{
+    ViewBag.Title = "Add money to an account";
 }
-
-<h2>Add</h2>
-
+<script>
+    window.onload = function () {
+        document.getElementById("FromAccountID").onchange = function () {
+            document.getElementById("ToAccountID").value = document.getElementById("FromAccountID").value;
+        }
+    }
+</script>
+<h2>Add money to an account</h2>
+<div>
+    @using (Html.BeginForm()) {
+        @Html.Hidden("ID", @Model.ID)
+        <select id="Type" name="Type" style="visibility:hidden;">
+            <option value="Add"></option>
+        </select>
+        <fieldset>
+            @Html.Label("FromAccountID", "From Account (ID):")
+            @Html.TextBox("FromAccountID", "")
+            @Html.ValidationMessage("FromAccountID")<br />
+            @Html.Label("Amount:")
+            @Html.TextBox("Amount", "")
+            @Html.ValidationMessage("Amount")<br />
+        </fieldset>
+        <input type="text" id="ToAccountID" name="ToAccountID" style="visibility:hidden;"/>
+        <input type="submit" value="Commit the transaction" />
+    }
+    <div class="transactionResult">
+        @ViewBag.TransactionResult
+    </div>
+</div>
 <p>@Html.ActionLink("Return to transaction selection page", "index", "transaction")</p>

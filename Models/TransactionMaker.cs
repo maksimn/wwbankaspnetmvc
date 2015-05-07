@@ -67,6 +67,10 @@ namespace WildWestBankApp.Models {
             return true;
         }
 
+        public String TryAddMoneyToAccount(Transaction transaction, ModelStateDictionary modelState) {
+            return "";
+        }
+
         private Boolean ValidateIfAccountHasEnougnMoneyForTransaction(Account a, Transaction t) {
             if(a.Money >= t.Amount) {
                 return true;
@@ -88,6 +92,22 @@ namespace WildWestBankApp.Models {
                 );
                 msd.Merge(newModelState);
             }
+        }
+
+        public String TryMakeTransfer(Transaction transaction, ModelStateDictionary modelState) {
+            transaction.DateTime = DateTime.Now;
+            Boolean result = false;
+            try {
+                result = TransferMoneyBetweenAccounts(transaction, modelState);
+            } catch (OverflowException) {
+                return "Overflow error while the transaction.";
+            } catch (Exception) {
+                throw;
+            }
+            if (result) {
+                return "Last transaction was successfully committed.";
+            }
+            return "Try to re-enter your information and repeat transaction.";
         }
     }
 }
