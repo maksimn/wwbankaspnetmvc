@@ -1,7 +1,35 @@
-﻿@{
-    ViewBag.Title = "Withdraw";
+﻿@using WildWestBankApp.Models
+@model Transaction
+@{
+    ViewBag.Title = "Withdraw money from an account";
 }
-
-<h2>Withdraw</h2>
-
+<script>
+    $(function () {
+        $("#FromAccountID").change(function () {
+            $("#ToAccountID").attr("value", $("#FromAccountID").attr("value"));
+        });
+    });
+</script>
+<h2>Withdraw money from an account</h2>
+<div>
+    @using (Html.BeginForm()) {
+        @Html.Hidden("ID", @Model.ID)
+        <select id="Type" name="Type" style="visibility:hidden;">
+            <option value="Withdraw"></option>
+        </select>
+        <fieldset>
+            @Html.Label("FromAccountID", "From Account (ID):")
+            @Html.TextBox("FromAccountID", "")
+            @Html.ValidationMessage("FromAccountID")<br />
+            @Html.Label("Amount:")
+            @Html.TextBox("Amount", "")
+            @Html.ValidationMessage("Amount")<br />
+        </fieldset>
+        <input type="text" id="ToAccountID" name="ToAccountID" style="visibility:hidden;" />
+        <input type="submit" value="Commit the transaction" />
+    }
+    <div class="transactionResult">
+        @ViewBag.TransactionResult
+    </div>
+</div>
 <p>@Html.ActionLink("Return to transaction selection page", "index", "transaction")</p>

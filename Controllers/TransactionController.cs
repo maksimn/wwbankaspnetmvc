@@ -34,12 +34,13 @@ namespace WildWestBankApp.Controllers {
         }
 
         public ActionResult Withdraw() {
-            return View();
+            return View(new Transaction { ID = transactionMaker.GetNewId() });
         }
 
         [HttpPost]
         public ActionResult Withdraw(Transaction transaction) {
-            return View();
+            ViewBag.TransactionResult = transactionMaker.TryWithdrawFromAccount(transaction, ModelState);
+            return View(new Transaction { ID = transactionMaker.GetNewId() });
         }
     }
 }

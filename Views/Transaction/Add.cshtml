@@ -4,11 +4,11 @@
     ViewBag.Title = "Add money to an account";
 }
 <script>
-    window.onload = function () {
-        document.getElementById("FromAccountID").onchange = function () {
-            document.getElementById("ToAccountID").value = document.getElementById("FromAccountID").value;
-        }
-    }
+    $(function () {
+        $("#FromAccountID").change(function () {
+            $("#ToAccountID").attr("value", $("#FromAccountID").attr("value"));
+        });
+    });
 </script>
 <h2>Add money to an account</h2>
 <div>
@@ -18,7 +18,7 @@
             <option value="Add"></option>
         </select>
         <fieldset>
-            @Html.Label("FromAccountID", "From Account (ID):")
+            @Html.Label("FromAccountID", "To Account (ID):")
             @Html.TextBox("FromAccountID", "")
             @Html.ValidationMessage("FromAccountID")<br />
             @Html.Label("Amount:")
