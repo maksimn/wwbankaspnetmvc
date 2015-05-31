@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Configuration;
+using System.Data;
+using System.Data.Common;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
@@ -80,11 +84,13 @@ namespace WildWestBankApp.Models {
 
         public List<Account> Accounts {
             get {
+                LoadAccountsFromDataFile();
                 return accounts;
             }
         }
         public List<Customer> Customers {
-            get { 
+            get {
+                SelectAllCustomersFromDb();
                 return customers; 
             }
         }
@@ -153,6 +159,24 @@ namespace WildWestBankApp.Models {
                 }
             }
             File.WriteAllText(accountsFilePath, String.Join(Environment.NewLine, stringArray));
+        }
+
+        private void SelectAllCustomersFromDb() {
+            String connName = "WWBankConnectionString";
+            ConnectionStringSettings settings = ConfigurationManager.ConnectionStrings[connName]; 
+            using (SqlConnection conn = new SqlConnection(settings.ConnectionString)) {
+                conn.Open();
+                String selectQuery = "SELECT ID, Name, Address, BirthDay FROM Customers";
+                SqlDataAdapter da = new SqlDataAdapter(selectQuery, conn);
+                DataSet ds = new DataSet();
+                da.Fill(ds, "Customers");
+                customers = new List<Customer>();
+                foreach (DataRow row in ds.Tables["Customers"].Rows) {
+                    var c = new Customer { ID = (Int32)row[0], Name = (String)row[1], Address = (String)row[2], BirthDay = (DateTime)row[3] };
+                    customers.Add(c);
+                }
+                conn.Dispose();
+            } 
         }
     }
 }

@@ -127,6 +127,10 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Content Include="App_Data\WWBank.mdf" />
+    <Content Include="App_Data\WWBank_log.ldf">
+      <DependentUpon>WWBank.mdf</DependentUpon>
+    </Content>
     <Content Include="CSS\style.css" />
     <Content Include="Global.asax" />
     <Content Include="Scripts\jquery-1.8.3.min.js" />
@@ -141,9 +145,7 @@
     </Content>
     <Content Include="Views\Web.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="App_Data\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="packages.config" />
   </ItemGroup>

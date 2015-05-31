@@ -8,9 +8,7 @@ namespace WildWestBankApp.Controllers {
         private DataRepository repository;
         
         public MainController() {
-            repository = new DataRepository();
-            repository.LoadCustomersFromDataFile();
-            repository.LoadAccountsFromDataFile();
+            repository = new DataRepository(); 
         }
         
         public ActionResult Customers() {
