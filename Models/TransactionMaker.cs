@@ -9,13 +9,10 @@ namespace WildWestBankApp.Models {
 
         public TransactionMaker() {
             repository = new DataRepository();
-            repository.Load();
         }
 
         public List<Transaction> Transactions {
-            get {
-                return repository.TransactionList;
-            }
+            get { return repository.TransactionList; }
         }
 
         public Int32 GetNewId() {

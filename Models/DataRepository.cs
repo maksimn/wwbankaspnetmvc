@@ -5,15 +5,11 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Collections.Generic;
-using System.IO;
 
 namespace WildWestBankApp.Models {
     public class DataRepository {
-        private String connName = "WWBankConnectionString";
+        private readonly String connName = "WWBankConnectionString";
         private DataSet dataSet;
-
-        private String accountsFilePath = AppDomain.CurrentDomain.BaseDirectory + @"\data\Account.csv";
-        private String transactionFilePath = AppDomain.CurrentDomain.BaseDirectory + @"\data\Transaction.csv";
 
         private List<Customer> customers;
         private List<Account> accounts;
@@ -32,6 +28,16 @@ namespace WildWestBankApp.Models {
                 da = new SqlDataAdapter(selectQuery, conn);
                 da.Fill(dataSet, "Accounts");
                 FillAccountListWithData();
+                DataTable accountTable = dataSet.Tables["Accounts"];
+                DataColumn[] pk = new DataColumn[1];
+                pk[0] = accountTable.Columns["AccountID"];
+                accountTable.Constraints.Add(new UniqueConstraint("PK_Account", pk[0]));
+                accountTable.PrimaryKey = pk;
+
+                selectQuery = "SELECT ID, AccountFromId, AccountToId, Type, Amount, DateTime FROM Transactions";
+                da = new SqlDataAdapter(selectQuery, conn);
+                da.Fill(dataSet, "Transactions");
+                FillTransactionListWithData();
                 conn.Dispose();
             } 
         }
@@ -50,29 +56,13 @@ namespace WildWestBankApp.Models {
                 accounts.Add(a);
             }
         }
-
-        private void LoadTransactionListFromFile() {
+        private void FillTransactionListWithData() {
             transactionList = new List<Transaction>();
-            using (StreamReader file = new StreamReader(transactionFilePath)) {
-                String line;
-                String[] rowField;
-                file.ReadLine();
-                while ((line = file.ReadLine()) != null) {
-                    rowField = line.Split(new Char[] { ';' });
-                    Transaction transaction = new Transaction();
-                    transaction.ID = Convert.ToInt32(rowField[0]);
-                    transaction.FromAccountID = Convert.ToInt32(rowField[1]);
-                    transaction.ToAccountID = Convert.ToInt32(rowField[2]);
-                    transaction.Type = (TransactionType) Convert.ToInt32(rowField[3]);
-                    transaction.Amount = Convert.ToDecimal(rowField[4]);
-                    transaction.DateTime = Convert.ToDateTime(rowField[5]);
-                    transactionList.Add(transaction);
-                }
-                file.Dispose();
+            foreach (DataRow row in dataSet.Tables["Transactions"].Rows) {
+                var a = new Transaction { ID = (Int32)row[0], FromAccountID = (Int32)row[1], ToAccountID = (Int32)row[2],
+                    Type = (TransactionType)row[3], Amount = (Decimal)row[4], DateTime = (DateTime)row[5] };
+                transactionList.Add(a);
             }
-        }
-        public void Load() {
-            LoadTransactionListFromFile();
         }
 
         public List<Account> Accounts {
@@ -82,9 +72,7 @@ namespace WildWestBankApp.Models {
             get { return customers; }
         }
         public List<Transaction> TransactionList {
-            get {
-                return transactionList;
-            }
+            get { return transactionList; }
         }
 
         public void AddAccount(Account account) {
@@ -96,6 +84,11 @@ namespace WildWestBankApp.Models {
             Add(customer, customers, "Customers", String.Format("INSERT INTO Customers (ID, Name, Address, BirthDay) VALUES ({0}, '{1}', '{2}', '{3}')",
                     customer.ID, customer.Name.Replace("'", "''"), customer.Address.Replace("'", "''"), customer.BirthDay.ToString("yyyyMMdd")),
                 new Object[] { customer.ID, customer.Name, customer.Address, customer.BirthDay });
+        }
+        public void AddTransaction(Transaction transaction) {
+            Add(transaction, transactionList, "Transactions", String.Format("INSERT INTO Transactions (ID, AccountFromId, AccountToId, Type, Amount, DateTime) VALUES ({0}, {1}, {2}, {3}, {4}, '{5}')",
+                        transaction.ID, transaction.FromAccountID, transaction.ToAccountID, (Int32)(transaction.Type), transaction.Amount.ToString().Replace(',', '.'), transaction.DateTime.ToString("yyyy-MM-dd HH:mm:ss")),
+                new Object[] { transaction.ID, transaction.FromAccountID, transaction.ToAccountID, transaction.Type, transaction.Amount, transaction.DateTime });
         }
         private void Add<T>(T obj, List<T> collection, String table, String insertQuery, Object[] row) {
             ConnectionStringSettings settings = ConfigurationManager.ConnectionStrings[connName];
@@ -109,22 +102,6 @@ namespace WildWestBankApp.Models {
                 conn.Dispose();
             } 
         }
-        public void AddTransaction(Transaction transaction) {
-            transactionList.Add(transaction);
-            SaveTransactionInFile(transaction);
-        }
-
-        private String ConvertToString(Account account) {
-            return String.Format("{0};{1};{2}", account.AccountID, account.CustomerID, account.Money);
-        }
-        private String ConvertToString(Transaction transaction) {
-            return String.Format("{0};{1};{2};{3};{4};{5}", transaction.ID, transaction.FromAccountID,
-                transaction.ToAccountID, (Int32)transaction.Type, transaction.Amount, transaction.DateTime);
-        }
-
-        private void SaveTransactionInFile(Transaction transaction) {
-            File.AppendAllText(transactionFilePath, Environment.NewLine + ConvertToString(transaction));
-        }
 
         public Account FindAccountById(Int32 id) {
             var accounts = Accounts.Where(acc => acc.AccountID == id);
@@ -135,17 +112,19 @@ namespace WildWestBankApp.Models {
         }
 
         public void UpdateAccount(Account account) {
-            String fileText = File.ReadAllText(accountsFilePath);
-            String[] stringArray = fileText.Split(new String[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-            for (Int32 i = 1; i < stringArray.Length; i++) {
-                String strID = stringArray[i].Substring(0, stringArray[i].IndexOf(';'));
-                Int32 id = Convert.ToInt32(strID);
-                if (id == account.AccountID) {
-                    stringArray[i] = ConvertToString(account);
-                    break;
-                }
-            }
-            File.WriteAllText(accountsFilePath, String.Join(Environment.NewLine, stringArray));
+            ConnectionStringSettings settings = ConfigurationManager.ConnectionStrings[connName];
+            using (SqlConnection conn = new SqlConnection(settings.ConnectionString)) {
+                conn.Open();
+                String updateQuery = String.Format("UPDATE Accounts SET Money = {0} WHERE AccountID = {1}", 
+                    account.Money.ToString().Replace(',', '.'), account.AccountID);
+                SqlDataAdapter da = new SqlDataAdapter(updateQuery, conn);
+                DataRow row = dataSet.Tables["Accounts"].Rows.Find(new Object[] { account.AccountID });
+                row["Money"] = account.Money;
+                da.UpdateCommand = new SqlCommand(updateQuery, conn);
+                da.Update(dataSet, "Accounts");
+                FindAccountById(account.AccountID).Money = account.Money;
+                conn.Dispose();
+            } 
         }
     }
 }
