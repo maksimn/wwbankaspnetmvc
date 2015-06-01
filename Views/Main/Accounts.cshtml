@@ -29,7 +29,8 @@
 <div>
     <h3>Add a new account for this customer</h3>
     @using (Html.BeginForm()) { 
-        @Html.Hidden("ID", Model.CustomerID)
+        @Html.Hidden("AccountID", Model.NewAccountID)
+        @Html.Hidden("CustomerID", Model.CustomerID)
         <input type="submit" value="Add new account" />
     }
 </div>

@@ -8,54 +8,49 @@ using System.Collections.Generic;
 using System.IO;
 
 namespace WildWestBankApp.Models {
-    public class DataRepository { 
-        private String customersFilePath = AppDomain.CurrentDomain.BaseDirectory + @"\data\Customer.csv";
+    public class DataRepository {
+        private String connName = "WWBankConnectionString";
+        private DataSet dataSet;
+
         private String accountsFilePath = AppDomain.CurrentDomain.BaseDirectory + @"\data\Account.csv";
         private String transactionFilePath = AppDomain.CurrentDomain.BaseDirectory + @"\data\Transaction.csv";
 
         private List<Customer> customers;
         private List<Account> accounts;
         private List<Transaction> transactionList;
+        public DataRepository() {
+            dataSet = new DataSet();
+            ConnectionStringSettings settings = ConfigurationManager.ConnectionStrings[connName];
+            using (SqlConnection conn = new SqlConnection(settings.ConnectionString)) {
+                conn.Open();
+                String selectQuery = "SELECT ID, Name, Address, BirthDay FROM Customers";
+                SqlDataAdapter da = new SqlDataAdapter(selectQuery, conn); 
+                da.Fill(dataSet, "Customers");
+                FillCustomerListWithData();
 
-        public void LoadCustomersFromDataFile() {            
+                selectQuery = "SELECT AccountID, CustomerID, Money FROM Accounts";
+                da = new SqlDataAdapter(selectQuery, conn);
+                da.Fill(dataSet, "Accounts");
+                FillAccountListWithData();
+                conn.Dispose();
+            } 
+        }
+
+        private void FillCustomerListWithData() {
             customers = new List<Customer>();
-            using(StreamReader file = new StreamReader(customersFilePath)) {
-                String line;
-                String[] rowField;
-                file.ReadLine();
-                while ((line = file.ReadLine()) != null) {
-                    rowField = line.Split(new Char[] { ';' });
-                    Customer customer = new Customer();
-                    customer.ID = Convert.ToInt32(rowField[0]);
-                    customer.Name = rowField[1];
-                    customer.Address = rowField[2];
-                    Int32 year = Convert.ToInt32(rowField[3].Substring(0, 4));
-                    Int32 month = Convert.ToInt32(rowField[3].Substring(4, 2));
-                    Int32 day = Convert.ToInt32(rowField[3].Substring(6, 2));
-                    customer.BirthDay = new DateTime(year, month, day);
-                    customers.Add(customer);
-                }
-                file.Dispose();
+            foreach (DataRow row in dataSet.Tables["Customers"].Rows) {
+                var c = new Customer { ID = (Int32)row[0], Name = (String)row[1], Address = (String)row[2], BirthDay = (DateTime)row[3] };
+                customers.Add(c);
             }
         }
-        public void LoadAccountsFromDataFile() {
+        private void FillAccountListWithData() {
             accounts = new List<Account>();
-            using (StreamReader file = new StreamReader(accountsFilePath)) {
-                String line;
-                String[] rowField;
-                file.ReadLine();
-                while ((line = file.ReadLine()) != null) {
-                    rowField = line.Split(new Char[] { ';' });
-                    Account account = new Account() {
-                        AccountID = Convert.ToInt32(rowField[0]),
-                        CustomerID = Convert.ToInt32(rowField[1]),
-                        Money = Convert.ToDecimal(rowField[2])
-                    }; 
-                    accounts.Add(account);
-                }
-                file.Dispose();
+            foreach (DataRow row in dataSet.Tables["Accounts"].Rows) {
+                var a = new Account { AccountID = (Int32)row[0], CustomerID = (Int32)row[1], Money = (Decimal)row[2] };
+                accounts.Add(a);
             }
         }
+
         private void LoadTransactionListFromFile() {
             transactionList = new List<Transaction>();
             using (StreamReader file = new StreamReader(transactionFilePath)) {
@@ -77,22 +72,14 @@ namespace WildWestBankApp.Models {
             }
         }
         public void Load() {
-            LoadAccountsFromDataFile();
-            LoadCustomersFromDataFile();
             LoadTransactionListFromFile();
         }
 
         public List<Account> Accounts {
-            get {
-                LoadAccountsFromDataFile();
-                return accounts;
-            }
+            get { return accounts; }
         }
         public List<Customer> Customers {
-            get {
-                SelectAllCustomersFromDb();
-                return customers; 
-            }
+            get { return customers; }
         }
         public List<Transaction> TransactionList {
             get {
@@ -101,26 +88,32 @@ namespace WildWestBankApp.Models {
         }
 
         public void AddAccount(Account account) {
-            accounts.Add(account);
-            SaveAccountInFile(account);
+            Add(account, accounts, "Accounts", String.Format("INSERT INTO Accounts (AccountID, CustomerID, Money) VALUES ({0}, {1}, {2})",
+                    account.AccountID, account.CustomerID, account.Money.ToString().Replace(',', '.')),
+                new Object[] { account.AccountID, account.CustomerID, account.Money });
         }
         public void AddCustomer(Customer customer) {
-            customers.Add(customer);
-            SaveCustomerInFile(customer);
+            Add(customer, customers, "Customers", String.Format("INSERT INTO Customers (ID, Name, Address, BirthDay) VALUES ({0}, '{1}', '{2}', '{3}')",
+                    customer.ID, customer.Name.Replace("'", "''"), customer.Address.Replace("'", "''"), customer.BirthDay.ToString("yyyyMMdd")),
+                new Object[] { customer.ID, customer.Name, customer.Address, customer.BirthDay });
+        }
+        private void Add<T>(T obj, List<T> collection, String table, String insertQuery, Object[] row) {
+            ConnectionStringSettings settings = ConfigurationManager.ConnectionStrings[connName];
+            using (SqlConnection conn = new SqlConnection(settings.ConnectionString)) {
+                conn.Open();
+                SqlDataAdapter da = new SqlDataAdapter(insertQuery, conn);
+                dataSet.Tables[table].Rows.Add(row);
+                da.InsertCommand = new SqlCommand(insertQuery, conn);
+                da.Update(dataSet, table);
+                collection.Add(obj);
+                conn.Dispose();
+            } 
         }
         public void AddTransaction(Transaction transaction) {
             transactionList.Add(transaction);
             SaveTransactionInFile(transaction);
         }
 
-        private String ConvertToString(Customer customer) {
-            String temp = "0" + customer.BirthDay.Day;
-            String strDay = temp.Substring(temp.Length - 2);
-            temp = "0" + customer.BirthDay.Month;
-            String strMonth = temp.Substring(temp.Length - 2);
-            return String.Format("{0};{1};{2};{3}{4}{5}", customer.ID, customer.Name, customer.Address,
-                customer.BirthDay.Year, strMonth, strDay);
-        }       
         private String ConvertToString(Account account) {
             return String.Format("{0};{1};{2}", account.AccountID, account.CustomerID, account.Money);
         }
@@ -131,12 +124,6 @@ namespace WildWestBankApp.Models {
 
         private void SaveTransactionInFile(Transaction transaction) {
             File.AppendAllText(transactionFilePath, Environment.NewLine + ConvertToString(transaction));
-        }
-        private void SaveAccountInFile(Account account) {
-            File.AppendAllText(accountsFilePath, Environment.NewLine + ConvertToString(account));
-        }
-        private void SaveCustomerInFile(Customer customer) {
-            File.AppendAllText(customersFilePath, Environment.NewLine + ConvertToString(customer));
         }
 
         public Account FindAccountById(Int32 id) {
@@ -159,24 +146,6 @@ namespace WildWestBankApp.Models {
                 }
             }
             File.WriteAllText(accountsFilePath, String.Join(Environment.NewLine, stringArray));
-        }
-
-        private void SelectAllCustomersFromDb() {
-            String connName = "WWBankConnectionString";
-            ConnectionStringSettings settings = ConfigurationManager.ConnectionStrings[connName]; 
-            using (SqlConnection conn = new SqlConnection(settings.ConnectionString)) {
-                conn.Open();
-                String selectQuery = "SELECT ID, Name, Address, BirthDay FROM Customers";
-                SqlDataAdapter da = new SqlDataAdapter(selectQuery, conn);
-                DataSet ds = new DataSet();
-                da.Fill(ds, "Customers");
-                customers = new List<Customer>();
-                foreach (DataRow row in ds.Tables["Customers"].Rows) {
-                    var c = new Customer { ID = (Int32)row[0], Name = (String)row[1], Address = (String)row[2], BirthDay = (DateTime)row[3] };
-                    customers.Add(c);
-                }
-                conn.Dispose();
-            } 
         }
     }
 }

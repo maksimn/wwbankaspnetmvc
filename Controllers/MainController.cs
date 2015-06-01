@@ -27,11 +27,9 @@ namespace WildWestBankApp.Controllers {
         }
 
         [HttpPost]
-        public ActionResult Accounts() {
-            Int32 customerId = Convert.ToInt32(Request.Form["ID"]);
-            Int32 newAccountId = repository.Accounts.Max(a => a.AccountID) + 1;
-            repository.AddAccount(new Account() { AccountID = newAccountId, CustomerID = customerId, Money = 0.0m });
-            return RedirectToAction("Accounts", new { id = customerId });
+        public ActionResult Accounts(Account account) {
+            repository.AddAccount(account);
+            return RedirectToAction("Accounts", new { id = account.CustomerID });
         }
     }
 }
